@@ -6,7 +6,7 @@ from torch.autograd import Variable
 import torch.nn.functional as F
 import math
 from .submodule import *
-
+from .axial_layer import AxialBottleneck
 
 class hourglass(nn.Module):
   def __init__(self, inplanes):
@@ -63,6 +63,8 @@ class ModeDisparity(nn.Module):
     else:
       raise NotImplementedError("Convolution Type must be Regular or Sphere!")
 
+    self.attention = AxialBottleneck(inplanes=32, planes=32, base_width=64, attention=True)
+
     self.dres0 = nn.Sequential(convbn_3d(64, 32, 3, 1, 1), nn.ReLU(inplace=True), convbn_3d(32, 32, 3, 1, 1), nn.ReLU(inplace=True))
 
     self.dres1 = nn.Sequential(convbn_3d(32, 32, 3, 1, 1), nn.ReLU(inplace=True), convbn_3d(32, 32, 3, 1, 1))
@@ -97,8 +99,11 @@ class ModeDisparity(nn.Module):
 
   def forward(self, left, right):
 
-    refimg_fea = self.feature_extraction(left)
+    refimg_fea = self.feature_extraction(left)  #  torch.Size([1, 32, 256, 128])
     targetimg_fea = self.feature_extraction(right)
+
+    refimg_fea = self.attention(refimg_fea)
+    targetimg_fea = self.attention(targetimg_fea)
 
     #matching
     cost = Variable(torch.FloatTensor(refimg_fea.size()[0], refimg_fea.size()[1] * 2, self.maxdisp // 4, refimg_fea.size()[2], refimg_fea.size()[3]).zero_()).cuda()

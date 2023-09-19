@@ -5,5 +5,5 @@ python train_disparity.py \
                           --loadSHGonly \
                           --parallel \
                           --max_disp 272 \
-                          --save_checkpoint_path ./checkpoints_test/disp \
+                          --save_checkpoint_path ./checkpoints_attention/disp \
                           --batch_size 1
