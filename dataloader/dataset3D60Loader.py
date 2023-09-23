@@ -107,7 +107,7 @@ class Dataset3D60Disparity(Dataset):
     self.fileNameList = self.__getFileList()
     self.phiMap = self.__genCassiniPhiMap()
 
-    print("Dataset 3D60: Multi-views fish eye dataset. File list: {}. Num of files: {}. root dir: {}.".format(self.filenamesFile, len(self.fileNameList), self.rootDir))
+    print("Dataset 3D60: Multi-views fish eye dataset. File list: {}. Num of files: {}. root dir: {}. pair: {}".format(self.filenamesFile, len(self.fileNameList), self.rootDir, self.pair))
 
   def __len__(self):
     return len(self.fileNameList)
@@ -229,11 +229,12 @@ class Dataset3D60Disparity(Dataset):
       dispMap = torch.from_numpy(dispMap).unsqueeze_(0)
       data = {'leftImg': leftImg, 'rightImg': rightImg, 'dispMap': dispMap, 'leftNames': leftName}
     else:
-      leftImg = self.processed(leftImg)
-      rightImg = self.processed(rightImg)
+      # TODO: support both training and data conversion
+      # leftImg = self.processed(leftImg)
+      # rightImg = self.processed(rightImg)
       dispMap = torch.from_numpy(dispMap).unsqueeze_(0)
-      leftImg_flip = self.processed(leftImg_flip)
-      rightImg_flip = self.processed(rightImg_flip)
+      # leftImg_flip = self.processed(leftImg_flip)
+      # rightImg_flip = self.processed(rightImg_flip)
       dispMap_flip = torch.from_numpy(dispMap_flip).unsqueeze_(0)
       data = {
           'leftImg': leftImg,
@@ -649,33 +650,60 @@ if __name__ == '__main__':
   from tqdm import tqdm
   os.environ["OPENCV_IO_ENABLE_OPENEXR"] = "1"  # enable openexr
   # NOTE: test 3D60 disparity
-  da = Dataset3D60Disparity(filenamesFile='./3d60_val.txt', rootDir='../../../datasets/3D60/', curStage='validation', shape=(512, 256), crop=False, pair='all', flip=False, maxDepth=20.0)
-  myDL = torch.utils.data.DataLoader(da, batch_size=1, num_workers=1, pin_memory=False, shuffle=False)
-  maxDisp = 0
-  for id, batch in enumerate(tqdm(myDL, desc='Train iter')):
-    if id < 10:
-      if random.random() < 0.5:
-        left = batch['leftImg']
-        right = batch['rightImg']
-        disp = batch['dispMap']
-      else:
-        left = batch['leftImg_flip']
-        right = batch['rightImg_flip']
-        disp = batch['dispMap_flip']
-      print(disp.shape)
-      print(torch.max(left), torch.min(left), torch.max(right), torch.min(right))
-      disp[torch.isnan(disp)] = 0.0
-      disp[(disp > 192)] = 0.0
-      print(torch.max(disp), torch.min(disp))
-      disp = (disp - torch.min(disp)) / (torch.max(disp) - torch.min(disp))
-      left = (left - torch.min(left)) / (torch.max(left) - torch.min(left))
-      right = (right - torch.min(right)) / (torch.max(right) - torch.min(right))
-      torchvision.utils.save_image(left, 'ca_{}_l.png'.format(str(id)))
-      torchvision.utils.save_image(right, 'ca_{}_r.png'.format(str(id)))
-      torchvision.utils.save_image(disp, 'ca_{}_disp.png'.format(str(id)))
-    # test output disparity
-    maxDisp = max(maxDisp, torch.max(batch['dispMap']))
-  print(maxDisp)
+  root_path = '/media/feng/2TB/dataset/3D60/'
+  destination_path = '/media/feng/2TB/dataset/3D60_Cassini/'
+  filenamesFiles = ['./3d60_val.txt', './3d60_train.txt', './3d60_test.txt']
+  for filenamesfile in filenamesFiles:
+    for pair in ['lr', 'ud', 'ur']:
+      da = Dataset3D60Disparity(filenamesFile=filenamesfile, rootDir=root_path, shape=(512, 256), crop=False, pair=pair, maxDepth=20.0)
+      myDL = torch.utils.data.DataLoader(da, batch_size=1, num_workers=1, pin_memory=False, shuffle=False)
+      for id, batch in enumerate(tqdm(myDL, desc='Train iter')):
+          left = batch['leftImg']
+          right = batch['rightImg']
+          disp = batch['dispMap']
+          disp_flip = batch['dispMap_flip']
+
+          left_path = batch["leftNames"][0].replace(root_path, destination_path)
+          left_folder, left_file = os.path.split(left_path)
+          if pair == 'lr':
+            left_folder = left_folder.replace('/Center_Left_Down', '')
+            left_file = left_file.replace('Left_Down', f'{pair}_l')
+            left_path = os.path.join(left_folder, left_file)
+          else:
+            left_folder = left_folder.replace('/Up', '')
+            left_file = left_file.replace('Up', f'{pair}_u')
+            left_path = os.path.join(left_folder, left_file)
+          os.makedirs(left_folder, exist_ok=True)
+
+          right_path = batch["rightNames"][0].replace(root_path, destination_path)
+          right_folder, right_file = os.path.split(right_path)
+          if pair == 'ud':
+            right_folder = right_folder.replace('/Center_Left_Down', '')
+            right_file = right_file.replace('Left_Down', f'{pair}_d')
+            right_path = os.path.join(right_folder, right_file)
+          else:
+            right_folder = right_folder.replace('/Right', '')
+            right_file = right_file.replace('Right', f'{pair}_r')
+            right_path = os.path.join(right_folder, right_file)
+          # os.makedirs(right_folder, exist_ok=True)
+          # import IPython; IPython.embed()
+
+          left = cv2.cvtColor(left[0,...].numpy(), cv2.COLOR_RGB2BGR)
+          right = cv2.cvtColor(right[0,...].numpy(), cv2.COLOR_RGB2BGR)
+          cv2.imwrite(left_path, left)
+          cv2.imwrite(right_path, right)
+
+          disp[torch.isnan(disp)] = 0.0
+          disp_flip[torch.isnan(disp_flip)] = 0.0
+
+          # disp[(disp > 192)] = 0.0
+          disp_path = left_path.replace('color', 'disp').replace('.png', '.npz')
+          np.savez_compressed(disp_path, disp[0,0,...].numpy())
+          disp_flip_path = right_path.replace('color', 'disp').replace('.png', '.npz')
+          np.savez_compressed(disp_flip_path, disp_flip[0,0,...].numpy())
+
+          # disp_folder, disp_file = os.path.split(disp_path)
+          # os.makedirs(disp_folder, exist_ok=True)
 
   # # NOTE: test 3D60 fusion
   # da = Dataset3D60Fusion_3view(filenamesFile='./3d60_test.txt', rootDir='../../../datasets/3D60/', inputDir='../outputs/pred_3D60/', curStage='testing')

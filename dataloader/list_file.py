@@ -265,3 +265,44 @@ def list_deep360_fusion_test(input_path, dataset_path, soil):
   test_confs = [test_12_conf, test_13_conf, test_14_conf, test_23_conf, test_24_conf, test_34_conf]
   test_rgbs = [test_rgb1, test_rgb2, test_rgb3, test_rgb4]
   return test_depthes, test_confs, test_rgbs, test_gt
+
+def getFileList(filenamespath):
+    fileNameList = []
+    with open(filenamespath) as f:
+        lines = f.readlines()
+        for line in lines:
+            fileNameList.append(line.strip().split(" "))  # split by space
+    return fileNameList
+
+
+def list_3D60_disparity(filepath, filenamespath):
+  train_left_img = []
+  train_right_img = []
+  train_left_disp = []
+
+  file_list = getFileList(filenamespath)
+  for file in file_list:
+      if file[0].split('/')[1] == 'Matterport3D':
+          scene = file[0].split('/')[1]
+          id = file[0].split('/')[-1].split('_')[0] + '_' + file[0].split('/')[-1].split('_')[1]
+      elif file[0].split('/')[1] == 'Stanford2D3D':
+          scene = file[0].split('/')[1] + '/' + file[0].split('/')[2]
+          id = file[0].split('/')[-1].split('_')[0] + '_' + file[0].split('/')[-1].split('_')[1] + '_' + file[0].split('/')[-1].split('_')[2]
+      elif file[0].split('/')[1] == 'SunCG':
+          scene = file[0].split('/')[1]
+          id = file[0].split('/')[-1].split('_')[0]
+      for pair in ['lr', 'ud', 'ur']:
+          left = id + '_color_0_' + pair + '_' + pair[0] + '_0.0.png'
+          right = id + '_color_0_' + pair + '_' + pair[1] + '_0.0.png'
+          disp = id + '_disp_0_' + pair + '_' + pair[0] + '_0.0.npz'
+          left_flip = id + '_color_0_' + pair + '_' + pair[1] + '_0.0.png'
+          right_flip = id + '_color_0_' + pair + '_' + pair[0] + '_0.0.png'
+          disp_flip = id + '_disp_0_' + pair + '_' + pair[1] + '_0.0.npz'
+          train_left_img.append(os.path.join(filepath, scene, left))
+          train_left_img.append(os.path.join(filepath, scene, left_flip))
+          train_right_img.append(os.path.join(filepath, scene, right))
+          train_right_img.append(os.path.join(filepath, scene, right_flip))
+          train_left_disp.append(os.path.join(filepath, scene, disp))
+          train_left_disp.append(os.path.join(filepath, scene, disp_flip))
+
+  return train_left_img, train_right_img, train_left_disp
