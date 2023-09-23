@@ -4,7 +4,8 @@ This repository contains the source code for our paper:
 [MODE: Multi-view Omnidirectional Depth Estimation with 360$^\circ$ Cameras. ECCV 2022](https://link.springer.com/chapter/10.1007/978-3-031-19827-4_12)
 
 
-## Dataset Deep360
+## Dataset 
+### Deep360 dataset preparation
 Deep360 is a large synthetic outdoor dataset for multi-view omnidirectional depth estimation. It contains 2100 frames for training, 300 frames for validation and 600 frames for testing. Panoramas, ground truth disparity and depth maps are presented to train and evaluate omnidirectional depth estimation algorithms. This dataset also contains "soiled version" of panoramas which are soiled or affected by three common outdoor factors: mud spots, water drops and glare.
 
 You can download Deep360 through this [link](https://drive.google.com/drive/folders/1YJIaqDGWMTmGF0tyW8ktfG26xk-jSntg?usp=sharing). This folder contains 6 zip files corresponding to 6 episodes of Deep360, and a Readme.txt file for the introduction.
@@ -38,6 +39,18 @@ Deep360
 ├── ep6_500frames
 ```
 Please download and unzip the file, and follow the README.txt in the dataset folder and the dataloader in this repository to use this dataset.
+
+### 3D60 dataset preparation
+```shell
+# convert panorama to Cassini Projection
+cd dataloader
+python dataset3D60Loader.py
+# convert Cassini Projection to cylindrical panorama
+cd ../scripts
+python spherical2cylindrical_disp.py  # convert disparity
+python spherical2cylindrical.py  # convert RGB image
+```
+
 ## Introduction
 MODE is a two-stage omnidirectional depth estimation framework with multi-view 360◦ cameras. The framework first estimates the depth maps from different camera pairs via omnidirectional stereo matching and then fuses the depth maps to achieve robustness against mud spots, water drops on camera lenses, and glare caused by intense light.
 

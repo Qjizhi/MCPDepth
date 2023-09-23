@@ -13,7 +13,8 @@ from . import preprocess
 
 def default_loader(path):
   return Image.open(path).convert('RGB')
-
+  # TODO: support crop or not
+  # return Image.open(path).convert('RGB').crop((3, 0, 259, 512))
 
 def disparity_loader(path):
   keys = np.load(path).files
@@ -89,6 +90,13 @@ class Deep360DatasetDisparity(Dataset):
     dispName = self.disps[index]
     left = self.rgb_loader(leftName)
     right = self.rgb_loader(rightName)
+    # TODO: support both 3D60 and Deep360
+    # if self.dataset == '3D60':
+    #   pair = dispName.split('/')[-1].split('_')[-3]
+    #   side = dispName.split('/')[-1].split('_')[-2]
+    #   if side == pair[1]:
+    #     left = left.transpose(Image.FLIP_LEFT_RIGHT)
+    #     right = right.transpose(Image.FLIP_LEFT_RIGHT)
     disp = self.disp_loader(dispName)
     # if need to resize
     w, h = left.size
