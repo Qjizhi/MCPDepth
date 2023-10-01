@@ -91,8 +91,8 @@ def train(depthes, confs, rgbs, gt):
   model.train()
 
   if args.cuda:
-    depthes = [depth.cuda() for depth in depthes]
-    confs = [conf.cuda() for conf in confs]
+    depthes = [torch.nan_to_num(depth, nan=0.0).cuda() for depth in depthes]
+    confs = [torch.nan_to_num(conf, nan=0.0).cuda() for conf in confs]
     rgbs = [rgb.cuda() for rgb in rgbs]
     gt = gt.cuda()
 
@@ -120,8 +120,8 @@ def val(depthes, confs, rgbs, gt):
   model.eval()
 
   if args.cuda:
-    depthes = [depth.cuda() for depth in depthes]
-    confs = [conf.cuda() for conf in confs]
+    depthes = [torch.nan_to_num(depth, nan=0.0).cuda() for depth in depthes]
+    confs = [torch.nan_to_num(conf, nan=0.0).cuda() for conf in confs]
     rgbs = [rgb.cuda() for rgb in rgbs]
     gt = gt.cuda()
 
