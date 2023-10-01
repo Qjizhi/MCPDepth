@@ -18,7 +18,7 @@ def default_loader(path):
   # 3D60
   # return Image.open(path).convert('RGB').crop((3, 0, 259, 512))
   # Deep360
-  return Image.open(path).convert('RGB').crop((3, 0, 516, 1024))
+  return Image.open(path).convert('RGB').crop((3, 0, 515, 1024))
 
 
 def disparity_loader(path):
