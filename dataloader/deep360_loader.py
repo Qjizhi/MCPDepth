@@ -12,9 +12,14 @@ from . import preprocess
 
 
 def default_loader(path):
-  return Image.open(path).convert('RGB')
   # TODO: support crop or not
+  # no crop
+  # return Image.open(path).convert('RGB')
+  # 3D60
   # return Image.open(path).convert('RGB').crop((3, 0, 259, 512))
+  # Deep360
+  return Image.open(path).convert('RGB').crop((3, 0, 516, 1024))
+
 
 def disparity_loader(path):
   keys = np.load(path).files
