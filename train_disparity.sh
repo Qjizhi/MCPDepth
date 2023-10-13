@@ -13,8 +13,6 @@ python train_disparity.py \
                           --checkpoint_disp ./pretrained_model/pretrained_sceneflow_new.tar \
                           --loadSHGonly \
                           --parallel \
-                          --max_disp 192 \
-                          --save_checkpoint_path ./checkpoints_3D60_Regular/disp \
-                          --batch_size 8 \
-                          --width 256 \
-                          --height 512
+                          --max_disp 272 \
+                          --save_checkpoint_path ./checkpoints_attention/disp \
+                          --batch_size 1
