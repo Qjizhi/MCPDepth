@@ -11,8 +11,10 @@ from dataloader import Deep360DatasetDisparity
 from models import ModeDisparity
 from utils.geometry import rotateCassini, depthViewTransWithConf
 import cv2
+from PIL import Image
 
 parser = argparse.ArgumentParser(description='MODE - save disparity and confidence outputs')
+parser.add_argument('--projection', choices=['cylindrical', 'cassini'], help='model trained in which projection.')
 parser.add_argument('--max_disp', type=int, default=192, help='maxium disparity')
 parser.add_argument('--dbname', default='Deep360', help='dataset name')
 parser.add_argument('--datapath', default='../../datasets/Deep360/', help='datapath')
@@ -67,6 +69,164 @@ if args.checkpoint_disp is not None:
 
 print('Number of model parameters: {}'.format(sum([p.data.nelement() for p in model.parameters()])))
 
+def cylindrical_to_spherical_disp(cylindrical_img, vertical_fov=np.pi*120/180, scale=1, mode='nearest'):
+    # Read and rotate
+    # key = np.load(cylindrical_img).files[0]
+    # cylindrical_img = np.load(cylindrical_img)[key].astype(np.float32)
+    cylindrical_img = np.rot90(cylindrical_img, -1)
+
+    if scale == 1:
+        # Get the input cylindrical image dimensions
+        input_height, input_width = cylindrical_img.shape
+        output_height = 2 * int(vertical_fov / 2 * input_width / (2*np.pi))
+    else:
+        # resample
+        cylindrical_img = Image.fromarray(cylindrical_img)
+        cylindrical_img = cylindrical_img.resize((input_width * scale, input_height * scale), Image.NEAREST)
+        cylindrical_img = np.array(cylindrical_img) * scale
+        input_height, input_width = cylindrical_img.shape
+        output_height = scale * 2 * int(vertical_fov / 2 * input_width / (2*np.pi) / scale)
+
+    output_width = input_width
+    spherical_img = np.zeros((output_height, output_width))
+
+    # Calculate the vertical and horizontal field of view in radians
+    fov_vertical = vertical_fov
+    fov_horizontal = 2 * np.pi
+
+    # Loop over each pixel in the output spherical image
+    for y_out in range(output_height):
+        for x_out in range(output_width):
+            # Calculate longitude and latitude
+            theta = (x_out / output_width) * fov_horizontal - np.pi
+            phi =  (y_out - output_height /2) / (input_width / (2*np.pi))
+
+            # bilinear interpolation
+            # Get the four surrounding pixels in the original image
+            x_e = (theta + np.pi) / (2 * np.pi) * output_width
+            y_e = (input_width / (2*np.pi)) * np.tan(phi) + (input_height / 2)
+
+            # nearest
+            if mode == 'nearest':
+                y1 = int(np.round(y_e)) if (int(np.round(y_e)) < input_height) else (input_height -1)
+                x1 = int(np.round(x_e)) if (int(np.round(x_e)) < input_width) else (input_width -1)
+                cylindrical_disp = cylindrical_img[y1, x1]
+
+            # bilinear interpolation to get cylindrical disparity
+            elif mode == 'bilinear':
+                x1 = int(x_e)
+                y1 = int(y_e)
+
+                if x1 >= input_width - 1:
+                    y2 = y1 + 1
+                    fy = y_e - y1
+                    q11 = cylindrical_img[y1, x1]
+                    q12 = cylindrical_img[y2, x1]
+                    cylindrical_disp = (1 - fy) * q11 + fy * q12
+                elif y1 >= input_height - 1:
+                    x2 = x1 + 1
+                    fx = x_e - x1
+                    q11 = cylindrical_img[y1, x1]
+                    q21 = cylindrical_img[y1, x2]
+                    cylindrical_disp = (1 - fx) * q11 + fx * q21
+                else:
+                    x2 = x1 + 1
+                    y2 = y1 + 1
+                    fx = x_e - x1
+                    fy = y_e - y1
+                    q11 = cylindrical_img[y1, x1]
+                    q21 = cylindrical_img[y1, x2]
+                    q12 = cylindrical_img[y2, x1]
+                    q22 = cylindrical_img[y2, x2]
+                    cylindrical_disp = (1 - fx) * (1 - fy) * q11 + fx * (1 - fy) * q21 + (1 - fx) * fy * q12 + fx * fy * q22
+            else:
+                print("Wrong mode!")
+
+            focal_length = input_width / (2*np.pi)
+            y_c_right = y_e - cylindrical_disp
+            phi_right = np.arctan((y_c_right - input_height / 2) / focal_length)
+            spherical_disp = (phi - phi_right) * focal_length
+            spherical_img[y_out, x_out] = spherical_disp
+
+    if scale == 1:
+        spherical_img = np.rot90(spherical_img, 1)
+    else:
+        spherical_img = Image.fromarray(spherical_img)
+        spherical_img = spherical_img.resize((output_width // scale, output_height // scale), Image.NEAREST)
+        spherical_img = np.array(spherical_img)
+        spherical_img = np.rot90(spherical_img, 1) / scale
+    spherical_img = np.ascontiguousarray(spherical_img)
+    return spherical_img
+
+def cylindrical_to_spherical(cylindrical_img, vertical_fov=np.pi*120/180, scale=1, mode='nearest'):
+    # Read and rotate
+    cylindrical_img = np.rot90(cylindrical_img, -1)
+
+    # Get the input cylindrical image dimensions
+    input_height, input_width = cylindrical_img.shape
+    output_height = 2 * int(vertical_fov / 2 * input_width / (2*np.pi))
+
+
+    output_width = input_width
+    spherical_img = np.zeros((output_height, output_width))
+
+    # Calculate the vertical and horizontal field of view in radians
+    fov_vertical = vertical_fov
+    fov_horizontal = 2 * np.pi
+
+    # Loop over each pixel in the output spherical image
+    for y_out in range(output_height):
+        for x_out in range(output_width):
+            # Calculate longitude and latitude
+            theta = (x_out / output_width) * fov_horizontal - np.pi
+            phi =  (y_out - output_height /2) / (input_width / (2*np.pi))
+
+            # bilinear interpolation
+            # Get the four surrounding pixels in the original image
+            x_e = (theta + np.pi) / (2 * np.pi) * output_width
+            y_e = (input_width / (2*np.pi)) * np.tan(phi) + (input_height / 2)
+
+            # nearest
+            if mode == 'nearest':
+                y1 = int(np.round(y_e)) if (int(np.round(y_e)) < input_height) else (input_height -1)
+                x1 = int(np.round(x_e)) if (int(np.round(x_e)) < input_width) else (input_width -1)
+                cylindrical_disp = cylindrical_img[y1, x1]
+
+            # bilinear interpolation to get cylindrical disparity
+            elif mode == 'bilinear':
+                x1 = int(x_e)
+                y1 = int(y_e)
+
+                if x1 >= input_width - 1:
+                    y2 = y1 + 1
+                    fy = y_e - y1
+                    q11 = cylindrical_img[y1, x1]
+                    q12 = cylindrical_img[y2, x1]
+                    cylindrical_disp = (1 - fy) * q11 + fy * q12
+                elif y1 >= input_height - 1:
+                    x2 = x1 + 1
+                    fx = x_e - x1
+                    q11 = cylindrical_img[y1, x1]
+                    q21 = cylindrical_img[y1, x2]
+                    cylindrical_disp = (1 - fx) * q11 + fx * q21
+                else:
+                    x2 = x1 + 1
+                    y2 = y1 + 1
+                    fx = x_e - x1
+                    fy = y_e - y1
+                    q11 = cylindrical_img[y1, x1]
+                    q21 = cylindrical_img[y1, x2]
+                    q12 = cylindrical_img[y2, x1]
+                    q22 = cylindrical_img[y2, x2]
+                    cylindrical_disp = (1 - fx) * (1 - fy) * q11 + fx * (1 - fy) * q21 + (1 - fx) * fy * q12 + fx * fy * q22
+            else:
+                print("Wrong mode!")
+
+            spherical_img[y_out, x_out] = cylindrical_disp
+
+    spherical_img = np.rot90(spherical_img, 1)
+    spherical_img = np.ascontiguousarray(spherical_img)
+    return spherical_img
 
 def output_disp_and_conf(imgL, imgR):
   model.eval()
@@ -191,13 +351,28 @@ def main():
       # outpath_disp = outpath.replace("rgb","disp_pred")
       # np.save(outpath_disp + "disp_pred.npy", pred_disp_batch[i])
       #------------- do disp2depth ------------------
-      depth_at_1, conf_at_1 = disp2depth(pred_disp_batch[i], conf_map_batch[i], dispName[i][-11:-9])
-      outpath_depth = outpath.replace("disp", outdir_name)
-      np.savez(outpath_depth + "disp_pred2depth.npz", depth_at_1)  #save npz files
-      #------------- save conf_map ------------------
-      outpath_conf = outpath.replace("disp", outdir_conf_name)
-      cv2.imwrite(outpath_conf + "conf_map.png", conf_at_1 * 255)
-
-
+      # spherical
+      if args.projection == 'cassini':
+        depth_at_1, conf_at_1 = disp2depth(pred_disp_batch[i], conf_map_batch[i], dispName[i][-11:-9])
+        outpath_depth = outpath.replace("disp", outdir_name)
+        np.savez(outpath_depth + "disp_pred2depth.npz", depth_at_1)  #save npz files
+        #------------- save conf_map ------------------
+        outpath_conf = outpath.replace("disp", outdir_conf_name)
+        cv2.imwrite(outpath_conf + "conf_map.png", conf_at_1 * 255)
+      # cylindrical
+      else:
+        disp_cy, conf_cy = pred_disp_batch[i], conf_map_batch[i]
+        disp_sph = cylindrical_to_spherical_disp(disp_cy, vertical_fov=2 * np.arctan(np.pi/2), mode='nearest')
+        # TODO: support 3D60 size
+        padding_size = (512 - disp_sph.shape[1]) // 2
+        disp_sph = np.pad(disp_sph, ((0, 0), (padding_size, padding_size)), mode='constant', constant_values=0.0)
+        conf_sph = cylindrical_to_spherical(conf_cy, vertical_fov=2 * np.arctan(np.pi/2), mode='bilinear')
+        conf_sph = np.pad(conf_sph, ((0, 0), (padding_size, padding_size)), mode='constant', constant_values=0.0)
+        depth_at_1, conf_at_1 = disp2depth(disp_sph, conf_sph, dispName[i][-11:-9])
+        outpath_depth = outpath.replace("disp", outdir_name)
+        np.savez(outpath_depth + "disp_pred2depth.npz", depth_at_1)  #save npz files
+        #------------- save conf_map ------------------
+        outpath_conf = outpath.replace("disp", outdir_conf_name)
+        cv2.imwrite(outpath_conf + "conf_map.png", conf_at_1 * 255)
 if __name__ == '__main__':
   main()

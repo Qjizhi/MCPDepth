@@ -4,9 +4,9 @@ import os
 from tqdm import tqdm
 from multiprocessing import Pool
 
-
-root_path = '/media/feng/2TB/dataset/Deep360'
-save_path = '/media/feng/2TB/dataset/Deep360_Cy'
+dataset = '3D60'
+root_path = '/media/feng/2TB/dataset/3D60_Cassini'
+save_path = '/media/feng/2TB/dataset/3D60_Cy'
 # this fov can get a size of 1024x512 
 vertical_fov = 2 * np.arctan(np.pi/2)  # np.pi * 120/ 180
 
@@ -35,6 +35,43 @@ def list_deep360_disparity_all(filepath, soiled):
                                  os.path.join(rgb_path, rgb_name_list[i * 2 + 1]), \
                                  os.path.join(disp_path, disp_name_list[i])])
 
+    return list_all
+
+def getFileList(filenamespath):
+    fileNameList = []
+    with open(filenamespath) as f:
+        lines = f.readlines()
+        for line in lines:
+            fileNameList.append(line.strip().split(" "))  # split by space
+    return fileNameList
+
+def list_3D60_disparity_all(filepath, filenamespath):
+    list_all = []
+
+    file_list = getFileList(filenamespath)
+    for file in file_list:
+        if file[0].split('/')[1] == 'Matterport3D':
+            scene = file[0].split('/')[1]
+            id = file[0].split('/')[-1].split('_')[0] + '_' + file[0].split('/')[-1].split('_')[1]
+        elif file[0].split('/')[1] == 'Stanford2D3D':
+            scene = file[0].split('/')[1] + '/' + file[0].split('/')[2]
+            id = file[0].split('/')[-1].split('_')[0] + '_' + file[0].split('/')[-1].split('_')[1] + '_' + file[0].split('/')[-1].split('_')[2]
+        elif file[0].split('/')[1] == 'SunCG':
+            scene = file[0].split('/')[1]
+            id = file[0].split('/')[-1].split('_')[0]
+        for pair in ['lr', 'ud', 'ur']:
+            left = id + '_color_0_' + pair + '_' + pair[0] + '_0.0.png'
+            right = id + '_color_0_' + pair + '_' + pair[1] + '_0.0.png'
+            disp = id + '_disp_0_' + pair + '_' + pair[0] + '_0.0.npz'
+            left_flip = id + '_color_0_' + pair + '_' + pair[1] + '_0.0.png'
+            right_flip = id + '_color_0_' + pair + '_' + pair[0] + '_0.0.png'
+            disp_flip = id + '_disp_0_' + pair + '_' + pair[1] + '_0.0.npz'
+            list_all.append([os.path.join(filepath, scene, left), \
+                             os.path.join(filepath, scene, right), \
+                             os.path.join(filepath, scene, disp)])
+            list_all.append([os.path.join(filepath, scene, left_flip), \
+                             os.path.join(filepath, scene, right_flip), \
+                             os.path.join(filepath, scene, disp_flip)])
     return list_all
 
 def convert_equirectangular_to_cylindrical(equirectangular_image, vertical_fov=np.pi*120/180, scale=1, mode='nearest'):
@@ -135,7 +172,13 @@ def convert(item):
     cylindrical_right_image.save(right_save_path, "png")
 
 def main():
-    list_all = list_deep360_disparity_all(root_path, False)
+    if dataset == '3D60':
+        list_val = list_3D60_disparity_all(root_path, '../dataloader/3d60_val.txt')
+        list_train = list_3D60_disparity_all(root_path, '../dataloader/3d60_train.txt')
+        list_test = list_3D60_disparity_all(root_path, '../dataloader/3d60_test.txt')
+        list_all = list_val + list_train + list_test
+    elif dataset == 'deep360':
+        list_all = list_deep360_disparity_all(root_path, False)
 
     with Pool(processes=24) as p:
         max_ = len(list_all)

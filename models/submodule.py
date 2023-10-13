@@ -159,6 +159,8 @@ class sphere_feature_extraction(nn.Module):
     self.layer3 = self._make_layer(RegularBasicBlock, in_height // 4, in_width // 4, sphereType, 64, 64, 4, 1, 1, 2)  # regular dilation
 
     self.layer4 = self._make_layer(SphereBasicBlock, in_height // 4, in_width // 4, sphereType, 64, 128, 8, 1, 1, 1)  # sphere
+    # self.layer4 = self._make_layer(RegularBasicBlock, in_height // 4, in_width // 4, sphereType, 64, 128, 8, 1, 1, 3)  # sphere
+
     self.lastconv = nn.Sequential(convbn(256, 128, 1, 1, 0, 1), nn.ReLU(inplace=True), convbn(128, 128, 3, 1, 1, 1), nn.ReLU(inplace=True), convbn(128, 32, 1, 1, 0, 1), nn.ReLU(inplace=True))
 
   def _make_layer(self, block, height, width, sphereType, inplanes, planes, blocks, stride, pad, dilation):

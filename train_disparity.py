@@ -24,7 +24,7 @@ from models import ModeDisparity
 from models import initModelPara, loadStackHourglassOnly
 
 from utils import evaluation
-from dataloader import list_deep360_disparity_train, Deep360DatasetDisparity
+from dataloader import list_deep360_disparity_train, list_3D60_disparity, Deep360DatasetDisparity
 '''
 Argument Definition
 '''
@@ -251,6 +251,14 @@ writer = SummaryWriter(writerPath)
 print("Preparing data. Dataset: <{}>".format(args.dataset))
 if args.dataset == 'Deep360':
   train_left_img, train_right_img, train_left_disp, val_left_img, val_right_img, val_left_disp = list_deep360_disparity_train(args.dataset_root, soiled=args.soiled)
+  trainDispData = Deep360DatasetDisparity(train_left_img, train_right_img, train_left_disp, shape=(args.height, args.width))
+  valDispData = Deep360DatasetDisparity(val_left_img, val_right_img, val_left_disp)
+  print("Num of training data:{}. Num of validation data:{}".format(len(trainDispData), len(valDispData)))
+  trainDispDataLoader = torch.utils.data.DataLoader(trainDispData, batch_size=args.batch_size, num_workers=4, pin_memory=False, shuffle=True)
+  valDispDataLoader = torch.utils.data.DataLoader(valDispData, batch_size=args.batch_size, num_workers=4, pin_memory=False, shuffle=False)
+elif args.dataset == '3D60':
+  train_left_img, train_right_img, train_left_disp = list_3D60_disparity(args.dataset_root, './dataloader/3d60_train.txt')
+  val_left_img, val_right_img, val_left_disp = list_3D60_disparity(args.dataset_root, './dataloader/3d60_val.txt')
   trainDispData = Deep360DatasetDisparity(train_left_img, train_right_img, train_left_disp, shape=(args.height, args.width))
   valDispData = Deep360DatasetDisparity(val_left_img, val_right_img, val_left_disp)
   print("Num of training data:{}. Num of validation data:{}".format(len(trainDispData), len(valDispData)))
