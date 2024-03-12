@@ -1,7 +1,4 @@
-# MODE: Multi-view Omnidirectional Depth Estimation with 360$^\circ$ Cameras
-This repository contains the source code for our paper:
-
-[MODE: Multi-view Omnidirectional Depth Estimation with 360$^\circ$ Cameras. ECCV 2022](https://link.springer.com/chapter/10.1007/978-3-031-19827-4_12)
+# MCPDepth: Omnidirectional Depth Estimation via Stereo Matching from Multi-Cylindrical Panoramas
 
 
 ## Dataset 
@@ -52,11 +49,7 @@ python spherical2cylindrical.py  # convert RGB image
 ```
 
 ## Introduction
-MODE is a two-stage omnidirectional depth estimation framework with multi-view 360◦ cameras. The framework first estimates the depth maps from different camera pairs via omnidirectional stereo matching and then fuses the depth maps to achieve robustness against mud spots, water drops on camera lenses, and glare caused by intense light.
-
-![The pipeline of the proposed two-stage MODE](./net_arch.png)
-
-This [video](https://www.youtube.com/watch?v=Fw-KR35UWgQ) shows the process of generating the Deep360 dataset and the results of MODE on real scenes.
+MCPDepth is a two-stage framework for omnidirectional depth estimation via stereo matching between multiple panoramas. MCPDepth uses cylindrical panoramas for initial stereo matching and then fuses the resulting depth maps across views. A circular attention module is used to overcome the distortion along the vertical axis.
 
 ## Requirements
 + gcc/g++ <=7.5.0 (to compile the sphere convolution operator)
@@ -69,10 +62,7 @@ This [video](https://www.youtube.com/watch?v=Fw-KR35UWgQ) shows the process of g
 + prettytable (to show the error metrics)
 + tqdm (to visualize the progress bar)
 ## Usage
-* **First you need to compile the Spherical Convolution operator with following bash command:**
-```
-cd models/basic/spherical_conv && bash ./build.sh && cd ../../../
-```
+
 * **Training the disparity estimation stage(stereo matching)**
 
 you can train the model with the same protocol in this paper (w.r.t load the pretrained stack hourglass part of PSMNet) using this command:
@@ -112,36 +102,12 @@ please run following command to test the fusion model:
 python test_fusion.py --datapath-dataset [path to Deep360 folder] --datapath-input [path to saved outputs of disparity stage] --outpath [path to save the fusion results]
 ```
 
-
-*For all the command above, add ```--soiled``` for the soiled version of Deep360.*
 ## Pretrained Models
 Our pre-trained models can be found:
 
-[ModeDisparity](https://drive.google.com/file/d/1ltQ4A-XoMNLXANt7sITYxD4Jx_TGBXiW/view?usp=sharing)
-
-[ModeFusion](https://drive.google.com/file/d/1qGDD4kVx6KwVsxEqxfQu_BREVN9Ha2DC/view?usp=sharing)
-
-[ModeFusion_soiled](https://drive.google.com/file/d/1hUzMTl61ODUr7Dg5u58AdtW0A9ZPGcKn/view?usp=sharing)
 
 ## Acknowledgements
-The sperical convolution in this paper refers to Coors et al.[1].
 
-The code of stack hourglass in stereo matching network is adapted from [PSMNet](https://github.com/JiaRenChang/PSMNet) [2].
 
 ## Citation
-If you use the Deep360 dataset, or find this project and paper helpful in your research, please cite our paper.
-(The citaion could be slightly different when this paper is published formally. We will update it in time.)
-```
-@inproceedings{Li_Jin2022MODE,
-  author       = "Li, Ming and Jin, Xueqian and Hu, Xuejiao and Dai, Jingzhao and Du, Sidan and Li, Yang",
-  title        = "MODE: Multi-view Omnidirectional Depth Estimation with 360$^\circ$ Cameras",
-  booktitle    = "European Conference on Computer Vision (ECCV)",
-  month        = "October",
-  year         = "2022"
-}
-```
 
-## References
-[1] Coors, B., Condurache, A.P., Geiger, A.: Spherenet: Learning spherical representations for detection and classification in omnidirectional images. In: Ferrari, V.,Hebert, M., Sminchisescu, C., Weiss, Y. (eds.) Computer Vision – ECCV 2018. pp.525–541. Springer International Publishing, Cham(2018)
-
-[2] Chang, J., Chen, Y.: Pyramid stereo matching network. In: 2018 IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 5410–5418 (2018). https://doi.org/10.1109/CVPR.2018.0
