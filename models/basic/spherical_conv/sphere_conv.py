@@ -9,7 +9,7 @@ from torch.nn.modules.utils import _pair, _single
 
 import numpy as np
 
-from . import sphere_conv_cuda
+# from . import sphere_conv_cuda
 #import sphere_conv_cuda
 
 

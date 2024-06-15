@@ -5,9 +5,9 @@ from tqdm import tqdm
 from multiprocessing import Pool
 
 dataset = '3D60'
-root_path = '/media/feng/2TB/dataset/3D60_Cassini'
-save_path = '/media/feng/2TB/dataset/3D60_Cy'
-# this fov can get a size of 1024x512 
+root_path = '/path/to/3D60_Cassini'
+save_path = '/path/to/3D60_Cy'
+# this fov can get a size of 1024x512 for Deep360 and 512x256 for 3D60
 vertical_fov = 2 * np.arctan(np.pi/2)  # np.pi * 120/ 180
 
 def list_deep360_disparity_all(filepath, soiled):
@@ -92,8 +92,7 @@ def convert_equirectangular_to_cylindrical(equirectangular_image, vertical_fov=n
 
     # Calculate cylindrical width and height based on vertical FOV
     cylindrical_width = width_equirectangular
-    padding = 3 * scale
-    cylindrical_height = 2 * int(height_equirectangular / np.pi * np.tan(vertical_fov / 2) + padding)
+    cylindrical_height = 2 * int(height_equirectangular / np.pi * np.tan(vertical_fov / 2))
 
     # Create a blank cylindrical image
     cylindrical = Image.new("RGB", (cylindrical_width, cylindrical_height))

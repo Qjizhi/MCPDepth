@@ -279,7 +279,8 @@ def testDisp(modelDisp, testDispDataLoader, modelNameDisp, numTestData):
 
 def main():
   # model
-  model_disp = ModeDisparity(maxdisp=args.max_disp, conv='Sphere', in_height=args.height, in_width=args.width, sphereType='Cassini', out_conf=False)
+  # model_disp = ModeDisparity(maxdisp=args.max_disp, conv='Sphere', in_height=args.height, in_width=args.width, sphereType='Cassini', out_conf=False)
+  model_disp = ModeDisparity(maxdisp=args.max_disp, conv='Regular', in_height=args.height, in_width=args.width, sphereType='Cassini', out_conf=False)
   if (args.parallel):
     model_disp = nn.DataParallel(model_disp)
   if args.cuda:

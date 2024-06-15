@@ -1,18 +1,9 @@
-# python train_disparity.py \
-#                           --dataset Deep360 \
-#                           --dataset_root /media/feng/2TB/dataset/Deep360_Cy_nearest_fov2/ \
-#                           --checkpoint_disp ./pretrained_model/pretrained_sceneflow_new.tar \
-#                           --loadSHGonly \
-#                           --parallel \
-#                           --max_disp 272 \
-#                           --save_checkpoint_path ./checkpoints_test/disp \
-#                           --batch_size 1
 python train_disparity.py \
-                          --dataset 3D60 \
-                          --dataset_root /media/feng/2TB/dataset/3D60_Cy/ \
+                          --dataset Deep360 \
+                          --dataset_root /path/to/Deep360_Cy/ \
                           --checkpoint_disp ./pretrained_model/pretrained_sceneflow_new.tar \
                           --loadSHGonly \
                           --parallel \
                           --max_disp 272 \
-                          --save_checkpoint_path ./checkpoints_attention/disp \
+                          --save_checkpoint_path ./checkpoints/disp_deep360_cy \
                           --batch_size 1

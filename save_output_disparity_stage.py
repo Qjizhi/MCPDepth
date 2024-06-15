@@ -56,7 +56,7 @@ AllImgLoader = torch.utils.data.DataLoader(Deep360DatasetDisparity(all_left, all
 # Note
 # in_height,in_width: shape of input image. using (1024,512) for deep360
 if args.dbname == 'Deep360':
-  model = ModeDisparity(args.max_disp, conv='Sphere', in_height=1024, in_width=512, out_conf=True)
+  model = ModeDisparity(args.max_disp, conv='Regular', in_height=1024, in_width=512, out_conf=True)
 
 if args.cuda:
   model = nn.DataParallel(model)

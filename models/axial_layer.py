@@ -129,7 +129,6 @@ class AxialBottleneck(nn.Module):
             self.bn2 = norm_layer(width)
         else:
             self.height_block = Axial_Layer(in_channels=width, num_heads=num_heads, kernel_size=256, inference=inference)
-            self.width_block = Axial_Layer(in_channels=width, num_heads=num_heads, kernel_size=128, stride=1, height_dim=False, inference=inference)
         self.conv3 = conv1x1(width, planes * self.expansion)
         self.bn3 = norm_layer(planes * self.expansion)
         self.relu = nn.ReLU(inplace=True)
@@ -148,7 +147,6 @@ class AxialBottleneck(nn.Module):
             out = self.bn2(out)
         else:
             out = self.height_block(out)
-            out = self.width_block(out)
         
         out = self.relu(out)
         out = self.conv3(out)
