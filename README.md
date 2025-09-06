@@ -9,7 +9,10 @@ Authors: Feng Qiao, Zhexiao Xiong, Nathan Jacobs, Xinge Zhu, Yuexin Ma, Qiumeng 
 ## Hilights
 
 ### Cylindrical projection
-A comparison for stereo matching of paired panoramas under spherical and cylindrical projection:
+A qualitative comaprison of Cassini (spherical) projection, cubic projection, and cylindircal projection for stereo matching:
+![image](./images/projection_comparison.png)
+
+An example of quantitative comparison for stereo matching of paired panoramas under spherical and cylindrical projection:
 ![image1](./images/comparison.png)
 
 ### Circular Attention
@@ -78,5 +81,10 @@ Our project rely on some awesome repos : [MODE](https://github.com/nju-ee/MODE-2
 If you find our work useful in your research, please consider citing our paper:
 
 ```shell
-
+@article{qiao2024mcpdepth,
+  title={MCPDepth: Omnidirectional Depth Estimation via Stereo Matching from Multi-Cylindrical Panoramas},
+  author={Qiao, Feng and Xiong, Zhexiao and Zhu, Xinge and Ma, Yuexin and He, Qiumeng and Jacobs, Nathan},
+  journal={arXiv preprint arXiv:2408.01653},
+  year={2024}
+}
 ```
