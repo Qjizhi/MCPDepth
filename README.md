@@ -1,13 +1,12 @@
-# MCPDepth: Omnidirectional Depth Estimation via Stereo Matching from Multi-Cylindrical Panoramas
-Official PyTorch implementation of paper:
+# [WACV 2026] MCPDepth: Omnidirectional Depth Estimation via Stereo Matching from Multi-Cylindrical Panoramas
+Feng Qiao, Zhexiao Xiong, Nathan Jacobs, Xinge Zhu, Yuexin Ma, Qiumeng He   
 
-MCPDepth: Omnidirectional Depth Estimation via Stereo Matching from Multi-Cylindrical Panoramas,
+[![Github](https://img.shields.io/badge/Github-Repo-orange?logo=github)](https://github.com/Qjizhi/MCPDepth) &nbsp;
+[![arXiv](https://img.shields.io/badge/arXiv-2408.01653-red?logo=arxiv)](https://arxiv.org/abs/2408.01653)
 
-Authors: Feng Qiao, Zhexiao Xiong, Nathan Jacobs, Xinge Zhu, Yuexin Ma, Qiumeng He 
 
-
-## Hilights
-
+## Introduction
+We introduce Multi-Cylindrical Panoramic Depth Estimation (MCPDepth), a novel two-stage framework designed to enhance omnidirectional depth estimation through stereo matching across multiple cylindrical panoramas. MCPDepth initially performs stereo matching using cylindrical panoramas, followed by a robust fusion of the resulting depth maps from different views. Unlike existing methods that rely on customized kernels to address distortions, MCPDepth utilizes standard network components, facilitating seamless deployment on embedded devices while delivering exceptional performance. To effectively address vertical distortions in cylindrical panoramas, MCPDepth incorporates a circular attention module, significantly expanding the receptive field beyond traditional convolutions. We provide a comprehensive theoretical and experimental analysis of common panoramic projections—spherical, cylindrical, and cubic—demonstrating the superior efficacy of cylindrical projection.
 ### Cylindrical projection
 A qualitative comaprison of Cassini (spherical) projection, cubic projection, and cylindircal projection for stereo matching:
 ![image](./images/projection_comparison.png)
