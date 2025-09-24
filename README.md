@@ -1,5 +1,5 @@
 # [WACV 2026] MCPDepth: Omnidirectional Depth Estimation via Stereo Matching from Multi-Cylindrical Panoramas
-Feng Qiao, Zhexiao Xiong, Nathan Jacobs, Xinge Zhu, Yuexin Ma, Qiumeng He   
+Feng Qiao, Zhexiao Xiong, Xinge Zhu, Yuexin Ma, Qiumeng He, Nathan Jacobs
 
 [![Github](https://img.shields.io/badge/Github-Repo-orange?logo=github)](https://github.com/Qjizhi/MCPDepth) &nbsp;
 [![arXiv](https://img.shields.io/badge/arXiv-2408.01653-red?logo=arxiv)](https://arxiv.org/abs/2408.01653)
