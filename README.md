@@ -2,11 +2,13 @@
 Feng Qiao, Zhexiao Xiong, Xinge Zhu, Yuexin Ma, Qiumeng He, Nathan Jacobs
 
 [![Github](https://img.shields.io/badge/Github-Repo-orange?logo=github)](https://github.com/Qjizhi/MCPDepth) &nbsp;
-[![arXiv](https://img.shields.io/badge/arXiv-2408.01653-red?logo=arxiv)](https://arxiv.org/abs/2408.01653)
+[![arXiv](https://img.shields.io/badge/arXiv-2408.01653-red?logo=arxiv)](https://arxiv.org/abs/2408.01653) &nbsp;
+[![CVPR 2026](https://img.shields.io/badge/CVPR%202026-OmniCV%20Workshop-blue)](https://omnicv.org/)
 
+> **Accepted by CVPR 2026 OmniCV Workshop** 🎉
 
 ## Introduction
-We introduce Multi-Cylindrical Panoramic Depth Estimation (MCPDepth), a novel two-stage framework designed to enhance omnidirectional depth estimation through stereo matching across multiple cylindrical panoramas. MCPDepth initially performs stereo matching using cylindrical panoramas, followed by a robust fusion of the resulting depth maps from different views. Unlike existing methods that rely on customized kernels to address distortions, MCPDepth utilizes standard network components, facilitating seamless deployment on embedded devices while delivering exceptional performance. To effectively address vertical distortions in cylindrical panoramas, MCPDepth incorporates a circular attention module, significantly expanding the receptive field beyond traditional convolutions. We provide a comprehensive theoretical and experimental analysis of common panoramic projections—spherical, cylindrical, and cubic—demonstrating the superior efficacy of cylindrical projection.
+We introduce Multi-Cylindrical Panoramic Depth Estimation (MCPDepth), a novel two-stage framework designed to enhance omnidirectional depth estimation through stereo matching across multiple cylind[...]
 ### Cylindrical projection
 A qualitative comaprison of Cassini (spherical) projection, cubic projection, and cylindircal projection for stereo matching:
 ![image](./images/projection_comparison.png)
@@ -79,11 +81,13 @@ Our project rely on some awesome repos : [MODE](https://github.com/nju-ee/MODE-2
 ## Citation
 If you find our work useful in your research, please consider citing our paper:
 
-```shell
-@article{qiao2024mcpdepth,
-  title={MCPDepth: Omnidirectional Depth Estimation via Stereo Matching from Multi-Cylindrical Panoramas},
-  author={Qiao, Feng and Xiong, Zhexiao and Zhu, Xinge and Ma, Yuexin and He, Qiumeng and Jacobs, Nathan},
-  journal={arXiv preprint arXiv:2408.01653},
-  year={2024}
+```bibtex
+@InProceedings{Qiao_2026_CVPR,
+    author    = {Qiao, Feng and Xiong, Zhexiao and Zhu, Xinge and Ma, Yuexin and He, Qiumeng and Jacobs, Nathan},
+    title     = {MCPDepth: Practical Omnidirectional Depth Estimation from Multiple Cylindrical Panoramas via Stereo Matching},
+    booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) Workshops},
+    month     = {June},
+    year      = {2026},
+    pages     = {10103-10113}
 }
 ```
