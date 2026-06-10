@@ -3,12 +3,13 @@ Feng Qiao, Zhexiao Xiong, Xinge Zhu, Yuexin Ma, Qiumeng He, Nathan Jacobs
 
 [![Github](https://img.shields.io/badge/Github-Repo-orange?logo=github)](https://github.com/Qjizhi/MCPDepth) &nbsp;
 [![arXiv](https://img.shields.io/badge/arXiv-2408.01653-red?logo=arxiv)](https://arxiv.org/abs/2408.01653) &nbsp;
-[![CVPR 2026](https://img.shields.io/badge/CVPR%202026-OmniCV%20Workshop-blue)](https://omnicv.org/)
+[![CVPR 2026](https://img.shields.io/badge/CVPR%202026-OmniCV%20Workshop-blue)](https://sites.google.com/view/omnicv2026)
 
 > **Accepted by CVPR 2026 OmniCV Workshop** 🎉
 
 ## Introduction
-We introduce Multi-Cylindrical Panoramic Depth Estimation (MCPDepth), a novel two-stage framework designed to enhance omnidirectional depth estimation through stereo matching across multiple cylind[...]
+We introduce Multi-Cylindrical Panoramic Depth Estimation (MCPDepth), a novel two-stage framework designed to enhance omnidirectional depth estimation through stereo matching across multiple cylindrical panoramas. Our method leverages the geometric advantages of cylindrical projections for improved stereo correspondence while introducing a circular attention mechanism to handle panoramic distortions.
+
 ### Cylindrical projection
 A qualitative comaprison of Cassini (spherical) projection, cubic projection, and cylindircal projection for stereo matching:
 ![image](./images/projection_comparison.png)
